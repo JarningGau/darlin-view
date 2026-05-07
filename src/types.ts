@@ -1,6 +1,6 @@
 export type ArrayId = 'CA' | 'TA' | 'RA';
 
-export type StructuralBlockType = 'prefix' | 'segment' | 'pam' | 'postfix';
+export type StructuralBlockType = 'prefix' | 'consite' | 'cutsite' | 'pam' | 'postfix';
 
 export interface ReferenceDefinition {
   id: ArrayId;

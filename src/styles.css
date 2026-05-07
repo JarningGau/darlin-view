@@ -111,8 +111,14 @@ select {
   background: #cde7df;
 }
 
-.structure-block--segment {
+.structure-block--consite {
   background: #f4cf8e;
+}
+
+.structure-block--cutsite {
+  background: #d1495b;
+  color: #fff8f4;
+  box-shadow: inset 0 0 0 2px rgba(90, 8, 18, 0.28);
 }
 
 .structure-block--pam {
@@ -137,6 +143,27 @@ select {
   color: var(--muted);
   font-size: 0.9rem;
   margin-bottom: 12px;
+}
+
+.reference-overview {
+  margin-bottom: 18px;
+}
+
+.reference-overview__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+.reference-overview__header h3 {
+  margin: 0;
+}
+
+.reference-overview__header p {
+  margin: 0;
+  color: var(--muted);
 }
 
 .alignment-list {
@@ -166,19 +193,41 @@ select {
   margin-bottom: 16px;
 }
 
+.alignment-segments {
+  display: grid;
+  gap: 16px;
+}
+
+.alignment-segment {
+  display: grid;
+  gap: 4px;
+}
+
 .alignment-ruler,
 .alignment-track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 18px;
-  overflow-x: auto;
+  grid-auto-columns: 27px;
   font-family: "IBM Plex Mono", monospace;
+}
+
+.alignment-ruler {
+  align-items: center;
+}
+
+.ruler-cell {
+  display: inline-grid;
+  min-height: 22px;
+  place-items: center;
+  font-size: 0.72rem;
+  line-height: 1;
+  color: var(--muted);
 }
 
 .base {
   display: inline-grid;
   place-items: center;
-  width: 18px;
+  width: 27px;
   height: 22px;
   border-radius: 4px;
 }

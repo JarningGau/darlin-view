@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import AlignmentDetailView from './components/AlignmentDetailView';
 import AlignmentList from './components/AlignmentList';
 import EmptyState from './components/EmptyState';
-import ReferenceStructureView from './components/ReferenceStructureView';
 import Toolbar from './components/Toolbar';
 import { referencesById } from './data/references';
 import { parseAlignmentTsv } from './lib/tsv';
@@ -75,8 +74,7 @@ export default function App() {
       <div className="workspace">
         <AlignmentList rows={visibleRows} selectedRowId={selectedRowId} onSelect={setSelectedRowId} />
         <section className="detail-panel">
-          <ReferenceStructureView reference={reference} />
-          {selectedRow ? <AlignmentDetailView row={selectedRow} /> : <EmptyState />}
+          {selectedRow ? <AlignmentDetailView row={selectedRow} reference={reference} /> : <EmptyState />}
         </section>
       </div>
     </main>
