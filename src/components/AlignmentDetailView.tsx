@@ -21,8 +21,8 @@ function classifyColumn(queryBase: string, refBase: string) {
     return 'match';
 }
 
-function isCutsiteCoordinate(coordinate: number | null, cutsiteRanges: Array<{ start: number; end: number }>) {
-    return coordinate !== null && cutsiteRanges.some((range) => coordinate >= range.start && coordinate < range.end);
+function isCoordinateInRanges(coordinate: number | null, ranges: Array<{ start: number; end: number }>) {
+    return coordinate !== null && ranges.some((range) => coordinate >= range.start && coordinate < range.end);
 }
 
 const CELL_WIDTH = 27;
@@ -35,12 +35,20 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
     const cutsiteRanges = structureBlocks
         .filter((block) => block.type === 'cutsite')
         .map(({ start, end }) => ({ start, end }));
+    const consiteRanges = structureBlocks
+        .filter((block) => block.type === 'consite')
+        .map(({ start, end }) => ({ start, end }));
+    const pamRanges = structureBlocks
+        .filter((block) => block.type === 'pam')
+        .map(({ start, end }) => ({ start, end }));
     const columns = row.alignedQuery.split('').map((queryBase, index) => ({
         queryBase,
         refBase: row.alignedRef[index],
         state: classifyColumn(queryBase, row.alignedRef[index]),
         coordinate: summary.referenceCoordinates[index],
-        isCutsite: isCutsiteCoordinate(summary.referenceCoordinates[index], cutsiteRanges)
+        isConsite: isCoordinateInRanges(summary.referenceCoordinates[index], consiteRanges),
+        isCutsite: isCoordinateInRanges(summary.referenceCoordinates[index], cutsiteRanges),
+        isPam: isCoordinateInRanges(summary.referenceCoordinates[index], pamRanges)
     }));
     const alignmentSegments = useMemo(() => {
         const size = Math.max(1, columnsPerSegment);
@@ -131,7 +139,7 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                             {segment.map((column, index) => (
                                 <span
                                     key={`ref-${segmentIndex}-${index}`}
-                                    className={`base base--${column.state}${column.isCutsite ? ' base--cutsite-region' : ''}`}
+                                    className={`base base--${column.state}${column.isConsite ? ' base--consite-region' : ''}${column.isCutsite ? ' base--cutsite-region' : ''}${column.isPam ? ' base--pam-region' : ''}`}
                                 >
                                     {column.refBase}
                                 </span>
@@ -141,7 +149,7 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                             {segment.map((column, index) => (
                                 <span
                                     key={`query-${segmentIndex}-${index}`}
-                                    className={`base base--${column.state}${column.isCutsite ? ' base--cutsite-region' : ''}`}
+                                    className={`base base--${column.state}${column.isConsite ? ' base--consite-region' : ''}${column.isCutsite ? ' base--cutsite-region' : ''}${column.isPam ? ' base--pam-region' : ''}`}
                                 >
                                     {column.queryBase}
                                 </span>

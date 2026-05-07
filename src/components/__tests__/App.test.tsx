@@ -52,8 +52,10 @@ test('wraps alignment detail into multiple segments when the available width shr
         .getByTestId('alignment-segment-0')
         .querySelector('.alignment-track')
         ?.querySelectorAll('.base');
+    expect(firstTrackBases?.[17]).toHaveClass('base--consite-region');
     expect(firstTrackBases?.[17]).not.toHaveClass('base--cutsite-region');
     expect(firstTrackBases?.[18]).toHaveClass('base--cutsite-region');
+    expect(firstTrackBases?.[25]).toHaveClass('base--pam-region');
 
     const initialSegmentCount = screen.getAllByTestId(/alignment-segment-/).length;
     expect(initialSegmentCount).toBeGreaterThanOrEqual(1);

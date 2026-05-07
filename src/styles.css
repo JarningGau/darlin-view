@@ -6,6 +6,14 @@
     --muted: #5f6b62;
     --line: #d7d0c2;
     --accent: #145c53;
+    --region-prefix: #B8D8E3;
+    --region-consite: #FAE588;
+    --region-cutsite: #FF5A5F;
+    --region-pam: #00A896;
+    --region-postfix: #CDB4DB;
+    --region-consite-base: rgba(250, 229, 136, 0.72);
+    --region-cutsite-base: rgba(255, 90, 95, 0.72);
+    --region-pam-base: rgba(0, 168, 150, 0.62);
     --shadow: 0 20px 50px rgba(67, 52, 30, 0.12);
     font-family: Arial, sans-serif;
 }
@@ -101,6 +109,9 @@ select {
 }
 
 .structure-block {
+    display: inline-flex;
+    gap: 6px;
+    align-items: baseline;
     border: 0;
     border-radius: 12px;
     padding: 10px 12px;
@@ -108,25 +119,25 @@ select {
 }
 
 .structure-block--prefix {
-    background: #cde7df;
+    background: var(--region-prefix);
 }
 
 .structure-block--consite {
-    background: #f4cf8e;
+    background: var(--region-consite);
 }
 
 .structure-block--cutsite {
-    background: #d1495b;
+    background: var(--region-cutsite);
     color: #fff8f4;
-    box-shadow: inset 0 0 0 2px rgba(90, 8, 18, 0.28);
+    box-shadow: inset 0 0 0 2px rgba(132, 18, 22, 0.28);
 }
 
 .structure-block--pam {
-    background: #ecc6b5;
+    background: var(--region-pam);
 }
 
 .structure-block--postfix {
-    background: #d8d8f3;
+    background: var(--region-postfix);
 }
 
 .reference-sequence {
@@ -169,6 +180,9 @@ select {
 .alignment-list {
     display: grid;
     gap: 10px;
+    max-height: calc(70vh - 72px);
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .alignment-item {
@@ -231,23 +245,19 @@ select {
     height: 22px;
     border-radius: 4px;
     background: #fff;
-    color: var(--ink);
+    color: #000;
 }
 
 .base--cutsite-region {
-    background: rgba(209, 73, 91, 0.5);
+    background: var(--region-cutsite-base);
 }
 
-.base--mismatch {
-    color: #8a3b00;
+.base--consite-region {
+    background: var(--region-consite-base);
 }
 
-.base--insertion {
-    color: #005a9c;
-}
-
-.base--deletion {
-    color: #1f7a3a;
+.base--pam-region {
+    background: var(--region-pam-base);
 }
 
 .error-banner {
