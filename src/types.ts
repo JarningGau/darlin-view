@@ -19,3 +19,21 @@ export interface StructuralBlock {
   end: number;
   sequence: string;
 }
+
+export interface AlignmentRow {
+  id: string;
+  rowNumber: number;
+  alignedQuery: string;
+  alignedRef: string;
+}
+
+export interface AlignmentSummary {
+  alignedLength: number;
+  mismatchCount: number;
+  insertionCount: number;
+  deletionCount: number;
+  editedRegionCount: number;
+  hasGap: boolean;
+  hasMismatch: boolean;
+  referenceCoordinates: Array<number | null>;
+}
