@@ -30,11 +30,6 @@ test('uploads TSV rows and renders structure, cutsite emphasis, and wrapped alig
     const wrappedSegments = screen.getAllByTestId(/alignment-segment-/);
     expect(wrappedSegments).toHaveLength(1);
 
-    await user.type(screen.getByLabelText('Search'), 'ACTG');
-
-    const table = screen.getByRole('table', { name: 'Alignment rows' });
-    expect(within(table).getAllByRole('button', { name: /Row/i })).toHaveLength(1);
-
     await user.click(screen.getByRole('button', { name: 'Clear alignments' }));
     expect(screen.getByLabelText('Dataset summary')).toHaveTextContent('n = 0 alignments');
     expect(screen.getByText('No rows loaded yet.')).toBeInTheDocument();

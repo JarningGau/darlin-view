@@ -22,22 +22,12 @@ function readFileText(file: File): Promise<string> {
 
 export default function App() {
     const [selectedArray, setSelectedArray] = useState<ArrayId>('CA');
-    const [queryText, setQueryText] = useState('');
     const [rows, setRows] = useState<AlignmentRow[]>([]);
     const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const reference = referencesById[selectedArray];
-    const visibleRows = useMemo(() => {
-        const needle = queryText.trim().toUpperCase();
-        if (!needle) {
-            return rows;
-        }
-
-        return rows.filter(
-            (row) => row.alignedQuery.includes(needle) || row.alignedRef.includes(needle)
-        );
-    }, [queryText, rows]);
+    const visibleRows = useMemo(() => rows, [rows]);
 
     const selectedRow = visibleRows.find((row) => row.id === selectedRowId) ?? visibleRows[0] ?? null;
 
@@ -77,8 +67,6 @@ export default function App() {
             <Toolbar
                 selectedArray={selectedArray}
                 onArrayChange={setSelectedArray}
-                queryText={queryText}
-                onQueryTextChange={setQueryText}
                 totalRows={rows.length}
                 visibleRows={visibleRows.length}
                 onFileChange={handleFileChange}
