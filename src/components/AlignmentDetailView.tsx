@@ -30,6 +30,7 @@ const CELL_WIDTH = 27;
 export default function AlignmentDetailView({ row, reference }: AlignmentDetailViewProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [columnsPerSegment, setColumnsPerSegment] = useState(row.alignedQuery.length || 1);
+    const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
     const summary = summarizeAlignment(row.alignedQuery, row.alignedRef);
     const structureBlocks = deriveReferenceBlocks(reference);
     const cutsiteRanges = structureBlocks
@@ -76,6 +77,36 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
         return () => observer.disconnect();
     }, [row.alignedQuery.length]);
 
+    useEffect(() => {
+        if (copyState === 'idle') {
+            return;
+        }
+
+        const timeout = window.setTimeout(() => setCopyState('idle'), 1200);
+        return () => window.clearTimeout(timeout);
+    }, [copyState]);
+
+    async function copyToClipboard(text: string) {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', 'true');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        if (!success) {
+            throw new Error('Copy failed');
+        }
+    }
+
     return (
         <section className="panel">
             <div className="panel-header">
@@ -83,7 +114,25 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                 <p>Row {row.rowNumber}</p>
             </div>
             <div className="mutation-annotation">
-                <h3 className="alignment-heading">Mutation annotation</h3>
+                <div className="mutation-annotation__header">
+                    <h3 className="alignment-heading">Mutation annotation</h3>
+                    <button
+                        type="button"
+                        className="mutation-annotation__copy"
+                        disabled={!summary.mutationAnnotation}
+                        aria-label="Copy mutation annotation"
+                        onClick={async () => {
+                            try {
+                                await copyToClipboard(summary.mutationAnnotation || '');
+                                setCopyState('copied');
+                            } catch {
+                                setCopyState('error');
+                            }
+                        }}
+                    >
+                        {copyState === 'copied' ? 'Copied' : copyState === 'error' ? 'Copy failed' : 'Copy'}
+                    </button>
+                </div>
                 <code>{summary.mutationAnnotation || 'None'}</code>
             </div>
             <h3 className="alignment-heading">Alignment</h3>
