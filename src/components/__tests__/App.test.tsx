@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
 import App from '../../App';
@@ -33,6 +33,22 @@ test('uploads TSV rows and renders structure, cutsite emphasis, and wrapped alig
 
     const list = screen.getByRole('list', { name: 'Alignment rows' });
     expect(within(list).getAllByRole('button')).toHaveLength(1);
+});
+
+test('loads TSV rows submitted from pasted text', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText('Paste TSV'), {
+        target: {
+            value: 'aligned_query\taligned_ref\nAC-G\tACCG\nACTG\tACTG\n'
+        }
+    });
+    await user.click(screen.getByRole('button', { name: 'Submit TSV' }));
+
+    expect(await screen.findByText(/Total rows:\s*2/)).toBeInTheDocument();
+    expect(await screen.findByText('Alignment Detail')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Row 1/ })).toBeInTheDocument();
 });
 
 test('wraps alignment detail into multiple segments when the available width shrinks', async () => {
@@ -84,7 +100,7 @@ test('renders multi-digit positions as horizontal labels in alignment detail', a
     const firstSegment = screen.getByTestId('alignment-segment-0');
     const positionLabel = within(firstSegment).getByTestId('ruler-cell-0-10');
 
-    expect(positionLabel).toHaveTextContent('10');
+    expect(positionLabel).toHaveTextContent('11');
     expect(positionLabel.childElementCount).toBe(0);
 });
 

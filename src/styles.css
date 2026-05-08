@@ -14,6 +14,7 @@
     --region-consite-base: rgba(250, 229, 136, 0.72);
     --region-cutsite-base: rgba(255, 90, 95, 0.72);
     --region-pam-base: rgba(0, 168, 150, 0.62);
+    --alignment-difference-ink: #A8B7D6;
     --shadow: 0 20px 50px rgba(67, 52, 30, 0.12);
     font-family: Arial, sans-serif;
 }
@@ -32,7 +33,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
     font: inherit;
 }
 
@@ -51,10 +53,23 @@ select {
 
 .toolbar {
     display: grid;
-    grid-template-columns: 2fr repeat(2, minmax(160px, 220px)) 1fr;
-    gap: 16px;
-    align-items: end;
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.8fr);
+    gap: 24px;
+    align-items: start;
     padding: 20px 24px;
+}
+
+.toolbar__summary,
+.toolbar__actions {
+    display: grid;
+    gap: 18px;
+}
+
+.toolbar__filters {
+    display: grid;
+    grid-template-columns: minmax(96px, 140px) minmax(180px, 1fr) minmax(220px, 1.1fr);
+    gap: 14px;
+    align-items: end;
 }
 
 .brand h1,
@@ -68,9 +83,90 @@ select {
     color: var(--muted);
 }
 
+.brand p {
+    margin: 8px 0 0;
+}
+
 .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.stats span {
+    border: 1px solid rgba(20, 92, 83, 0.16);
+    border-radius: 999px;
+    background: rgba(20, 92, 83, 0.07);
+    padding: 6px 10px;
+    font-size: 0.88rem;
+}
+
+.field,
+.paste-form label {
     display: grid;
-    gap: 4px;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.field input,
+.field select,
+.paste-form textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fffdf8;
+    color: var(--ink);
+    min-height: 38px;
+    padding: 8px 10px;
+}
+
+.field input:focus,
+.field select:focus,
+.paste-form textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(20, 92, 83, 0.12);
+    outline: 0;
+}
+
+.upload-field input {
+    padding: 7px 10px;
+}
+
+.paste-form {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto;
+    gap: 8px 12px;
+    align-items: end;
+    border: 1px solid rgba(215, 208, 194, 0.78);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.45);
+    padding: 12px;
+}
+
+.paste-form label {
+    grid-column: 1 / -1;
+}
+
+.paste-form textarea {
+    min-height: 78px;
+    resize: vertical;
+}
+
+.paste-form button {
+    border: 0;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+    min-height: 38px;
+    padding: 8px 12px;
+}
+
+.paste-form button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
 }
 
 .workspace {
@@ -248,6 +344,13 @@ select {
     color: #000;
 }
 
+.base--mismatch,
+.base--insertion,
+.base--deletion {
+    color: var(--alignment-difference-ink);
+    font-weight: 700;
+}
+
 .base--cutsite-region {
     background: var(--region-cutsite-base);
 }
@@ -267,4 +370,26 @@ select {
     background: #fff1ed;
     color: #8f2d20;
     padding: 12px 16px;
+}
+
+@media (max-width: 980px) {
+    .toolbar {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .app-shell {
+        padding: 16px;
+    }
+
+    .toolbar__filters,
+    .paste-form,
+    .workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .paste-form label {
+        grid-column: auto;
+    }
 }

@@ -129,9 +129,10 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                                     key={`ruler-${segmentIndex}-${index}`}
                                     className="ruler-cell"
                                     data-testid={`ruler-cell-${segmentIndex}-${index}`}
-                                    aria-label={`Reference position ${column.coordinate ?? 'gap'}`}
+                                    aria-label={`Reference position ${column.coordinate !== null ? column.coordinate + 1 : 'gap'
+                                        }`}
                                 >
-                                    {column.coordinate ?? '·'}
+                                    {column.coordinate !== null ? column.coordinate + 1 : '·'}
                                 </span>
                             ))}
                         </div>
