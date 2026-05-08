@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { summarizeAlignment } from '../lib/alignment';
 import { deriveReferenceBlocks } from '../lib/referenceLayout';
+import { buildAlignmentSvg, downloadPngFromSvg, downloadSvg } from '../lib/exportAlignment';
 import type { AlignmentRow, ReferenceDefinition } from '../types';
 
 type ColumnState = 'insertion' | 'deletion' | 'mismatch' | 'match' | 'complex';
@@ -48,6 +49,7 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [columnsPerSegment, setColumnsPerSegment] = useState(row.alignedQuery.length || 1);
     const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
+    const [exportState, setExportState] = useState<'idle' | 'exporting' | 'error'>('idle');
     const summary = summarizeAlignment(row.alignedQuery, row.alignedRef);
     const structureBlocks = deriveReferenceBlocks(reference);
     const cutsiteRanges = structureBlocks
@@ -130,6 +132,15 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
         return () => window.clearTimeout(timeout);
     }, [copyState]);
 
+    useEffect(() => {
+        if (exportState !== 'error') {
+            return;
+        }
+
+        const timeout = window.setTimeout(() => setExportState('idle'), 1600);
+        return () => window.clearTimeout(timeout);
+    }, [exportState]);
+
     async function copyToClipboard(text: string) {
         if (navigator.clipboard?.writeText) {
             await navigator.clipboard.writeText(text);
@@ -149,6 +160,25 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
         if (!success) {
             throw new Error('Copy failed');
         }
+    }
+
+    function buildExport() {
+        const { svg } = buildAlignmentSvg({
+            title: `darlin-view · ${reference.displayName}`,
+            rowLabel: `Row ${row.rowNumber}`,
+            mutationAnnotation: summary.mutationAnnotation || 'None',
+            segments: alignmentSegments,
+            cellWidth: CELL_WIDTH,
+            trackLabelWidth: TRACK_LABEL_WIDTH,
+            trackLabelGap: TRACK_LABEL_GAP,
+            overviewCellWidth: 3,
+            overviewCellGap: 1,
+            margin: 18
+        });
+
+        const safeRef = reference.displayName.replaceAll(/[^a-z0-9-_]+/gi, '-').replaceAll(/-+/g, '-').replaceAll(/^-|-$/g, '');
+        const filenameBase = `darlin-view_${safeRef || 'reference'}_row-${row.rowNumber}`;
+        return { svg, filenameBase };
     }
 
     return (
@@ -187,20 +217,40 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                         <button
                             type="button"
                             className="btn btn-secondary"
-                            disabled
+                            disabled={exportState === 'exporting' || !row.alignedQuery}
                             aria-label="Export SVG"
-                            title="Export SVG (coming soon)"
+                            title={exportState === 'error' ? 'Export failed' : 'Export SVG'}
+                            onClick={() => {
+                                try {
+                                    setExportState('exporting');
+                                    const { svg, filenameBase } = buildExport();
+                                    downloadSvg(svg, `${filenameBase}.svg`);
+                                    setExportState('idle');
+                                } catch {
+                                    setExportState('error');
+                                }
+                            }}
                         >
-                            Export SVG
+                            {exportState === 'exporting' ? 'Exporting…' : exportState === 'error' ? 'Export failed' : 'Export SVG'}
                         </button>
                         <button
                             type="button"
                             className="btn btn-secondary"
-                            disabled
+                            disabled={exportState === 'exporting' || !row.alignedQuery}
                             aria-label="Export PNG"
-                            title="Export PNG (coming soon)"
+                            title={exportState === 'error' ? 'Export failed' : 'Export PNG'}
+                            onClick={async () => {
+                                try {
+                                    setExportState('exporting');
+                                    const { svg, filenameBase } = buildExport();
+                                    await downloadPngFromSvg(svg, `${filenameBase}.png`, { scale: 2 });
+                                    setExportState('idle');
+                                } catch {
+                                    setExportState('error');
+                                }
+                            }}
                         >
-                            Export PNG
+                            {exportState === 'exporting' ? 'Exporting…' : exportState === 'error' ? 'Export failed' : 'Export PNG'}
                         </button>
                     </div>
                 </div>
