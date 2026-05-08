@@ -3,12 +3,14 @@ import { summarizeAlignment } from '../lib/alignment';
 import { deriveReferenceBlocks } from '../lib/referenceLayout';
 import type { AlignmentRow, ReferenceDefinition } from '../types';
 
+type ColumnState = 'insertion' | 'deletion' | 'mismatch' | 'match' | 'complex';
+
 interface AlignmentDetailViewProps {
     row: AlignmentRow;
     reference: ReferenceDefinition;
 }
 
-function classifyColumn(queryBase: string, refBase: string) {
+function classifyColumn(queryBase: string, refBase: string): ColumnState {
     if (refBase === '-') {
         return 'insertion';
     }
@@ -69,6 +71,7 @@ const CELL_WIDTH = 27;
 const TRACK_LABEL_WIDTH = 72;
 const TRACK_LABEL_GAP = 10;
 const TRACK_RESERVED_WIDTH = TRACK_LABEL_WIDTH + TRACK_LABEL_GAP;
+const RULER_SPACE = 1;
 
 export default function AlignmentDetailView({ row, reference }: AlignmentDetailViewProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -94,6 +97,32 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
         isCutsite: isCoordinateInRanges(summary.referenceCoordinates[index], cutsiteRanges),
         isPam: isCoordinateInRanges(summary.referenceCoordinates[index], pamRanges)
     }));
+
+    // Within each contiguous edited region, mark as "complex" when multiple
+    // basic mutation types (insertion/deletion/mismatch) occur together.
+    for (let index = 0; index < columns.length;) {
+        if (columns[index].state === 'match') {
+            index += 1;
+            continue;
+        }
+
+        let regionEnd = index;
+        const regionStates = new Set<ColumnState>();
+
+        while (regionEnd < columns.length && columns[regionEnd].state !== 'match') {
+            regionStates.add(columns[regionEnd].state);
+            regionEnd += 1;
+        }
+
+        if (regionStates.size > 1) {
+            for (let cursor = index; cursor < regionEnd; cursor += 1) {
+                columns[cursor].state = 'complex';
+            }
+        }
+
+        index = regionEnd;
+    }
+
     const alignmentSegments = useMemo(() => {
         const size = Math.max(1, columnsPerSegment);
         return columns.reduce<typeof columns[]>((segments, _, index) => {
@@ -241,10 +270,7 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                 <div ref={containerRef} className="alignment-segments">
                     {alignmentSegments.map((segment, segmentIndex) => {
                         const overview = segment.map((column) => {
-                            if (column.state === 'match') {
-                                return 'match';
-                            }
-                            return column.state;
+                            return column.state === 'match' ? 'match' : column.state;
                         });
 
                         return (
@@ -270,7 +296,7 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                                     <div className="alignment-ruler__cells">
                                         {segment.map((column, index) => {
                                             const position = column.coordinate !== null ? column.coordinate + 1 : null;
-                                            const isMajor = position !== null && position % 10 === 0;
+                                            const isMajor = position !== null && position % RULER_SPACE === 0;
                                             return (
                                                 <span
                                                     key={`ruler-${segmentIndex}-${index}`}
@@ -285,13 +311,42 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                                     </div>
                                 </div>
 
+                                <div className="alignment-track-row" aria-label="Reference context">
+                                    <span className="alignment-track-row__label">Context</span>
+                                    <div className="alignment-track">
+                                        {segment.map((column, index) => {
+                                            let contextClass = 'context-cell';
+                                            if (column.isCutsite) {
+                                                contextClass += ' context-cell--cutsite';
+                                            } else if (column.isPam) {
+                                                contextClass += ' context-cell--pam';
+                                            } else if (column.isConsite) {
+                                                contextClass += ' context-cell--consite';
+                                            }
+
+                                            return (
+                                                <span
+                                                    key={`ctx-${segmentIndex}-${index}`}
+                                                    className={contextClass}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
                                 <div className="alignment-track-row" aria-label="Reference sequence">
-                                    <span className="alignment-track-row__label">REF</span>
+                                    <span className="alignment-track-row__label">Reference</span>
                                     <div className="alignment-track">
                                         {segment.map((column, index) => (
                                             <span
                                                 key={`ref-${segmentIndex}-${index}`}
-                                                className={`base base--${baseToken(column.refBase)} base--${column.state}${column.isConsite ? ' base--consite-region' : ''}${column.isCutsite ? ' base--cutsite-region' : ''}${column.isPam ? ' base--pam-region' : ''}`}
+                                                className={`base base--${column.state}${column.state !== 'match' && column.isCutsite
+                                                    ? ' base--mutation-over-cutsite'
+                                                    : ''
+                                                    }${column.state !== 'match' && column.isPam
+                                                        ? ' base--mutation-over-pam'
+                                                        : ''
+                                                    }`}
                                             >
                                                 {column.refBase}
                                             </span>
@@ -300,12 +355,18 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                                 </div>
 
                                 <div className="alignment-track-row" aria-label="Read sequence">
-                                    <span className="alignment-track-row__label">READ</span>
+                                    <span className="alignment-track-row__label">Query</span>
                                     <div className="alignment-track">
                                         {segment.map((column, index) => (
                                             <span
                                                 key={`query-${segmentIndex}-${index}`}
-                                                className={`base base--${baseToken(column.queryBase)} base--${column.state}${column.isConsite ? ' base--consite-region' : ''}${column.isCutsite ? ' base--cutsite-region' : ''}${column.isPam ? ' base--pam-region' : ''}`}
+                                                className={`base base--${column.state}${column.state !== 'match' && column.isCutsite
+                                                    ? ' base--mutation-over-cutsite'
+                                                    : ''
+                                                    }${column.state !== 'match' && column.isPam
+                                                        ? ' base--mutation-over-pam'
+                                                        : ''
+                                                    }`}
                                             >
                                                 {column.queryBase}
                                             </span>

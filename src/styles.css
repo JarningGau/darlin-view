@@ -19,16 +19,10 @@
     --region-cutsite-base: rgba(254, 226, 226, 0.7);
     --region-pam-base: rgba(219, 234, 254, 0.75);
 
-    --nt-a-bg: rgba(34, 197, 94, 0.14);
-    --nt-a-fg: #166534;
-    --nt-t-bg: rgba(239, 68, 68, 0.14);
-    --nt-t-fg: #991b1b;
-    --nt-c-bg: rgba(37, 99, 235, 0.14);
-    --nt-c-fg: #1e40af;
-    --nt-g-bg: rgba(245, 158, 11, 0.16);
-    --nt-g-fg: #92400e;
-    --nt-gap-bg: rgba(107, 114, 128, 0.12);
-    --nt-gap-fg: #4b5563;
+    --mut-insertion: #2563eb;
+    --mut-deletion: #dc2626;
+    --mut-mismatch: #d97706;
+    --mut-complex: #7c3aed;
 }
 
 * {
@@ -358,19 +352,21 @@ textarea {
 .structure-strip {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin: 16px 0;
+    gap: 6px;
+    margin: 8px 0 4px;
 }
 
 .structure-block {
     display: inline-flex;
-    gap: 6px;
+    gap: 4px;
     align-items: baseline;
-    border: 0;
-    border-radius: 4px;
-    padding: 8px 10px;
+    border-radius: 3px;
+    padding: 3px 6px;
     text-align: left;
-    color: var(--text-main);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    border: 1px solid var(--border-subtle);
+    background: rgba(17, 24, 39, 0.01);
 }
 
 .structure-block--prefix {
@@ -378,17 +374,19 @@ textarea {
 }
 
 .structure-block--consite {
-    background: var(--region-consite);
+    border-color: var(--region-consite);
+    background: rgba(254, 243, 199, 0.3);
 }
 
 .structure-block--cutsite {
-    background: var(--region-cutsite);
-    color: #000000;
-    box-shadow: inset 0 0 0 2px rgba(132, 18, 22, 0.28);
+    border-color: var(--region-cutsite);
+    background: rgba(254, 226, 226, 0.3);
+    color: var(--text-main);
 }
 
 .structure-block--pam {
-    background: var(--region-pam);
+    border-color: var(--region-pam);
+    background: rgba(219, 234, 254, 0.35);
 }
 
 .structure-block--postfix {
@@ -471,6 +469,10 @@ textarea {
     background: rgba(239, 68, 68, 0.7);
 }
 
+.overview-cell--complex {
+    background: rgba(124, 58, 237, 0.75);
+}
+
 .alignment-ruler {
     display: grid;
     grid-template-columns: 72px minmax(0, 1fr);
@@ -494,7 +496,7 @@ textarea {
     display: inline-grid;
     min-height: 18px;
     place-items: end center;
-    font-size: 0.7rem;
+    font-size: 0.875rem;
     line-height: 1;
     color: var(--text-muted);
 }
@@ -516,71 +518,106 @@ textarea {
     font-size: 0.78rem;
 }
 
+.context-cell {
+    display: inline-block;
+    width: 27px;
+    height: 6px;
+    border-radius: 999px;
+    background: transparent;
+}
+
+.context-cell--consite {
+    background: #f59e0b;
+}
+
+.context-cell--cutsite {
+    background: #ef4444;
+}
+
+.context-cell--pam {
+    background: #3b82f6;
+}
+
 .base {
     display: inline-grid;
     place-items: center;
     width: 27px;
     height: 22px;
-    border-radius: 4px;
-    background: rgba(17, 24, 39, 0.03);
+    border-radius: 3px;
+    background: transparent;
     color: var(--text-main);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-size: 1.3rem;
+    opacity: 0.85;
 }
 
 .base--A {
-    background: var(--nt-a-bg);
-    color: var(--nt-a-fg);
+    background: transparent;
+    color: inherit;
 }
 
 .base--T {
-    background: var(--nt-t-bg);
-    color: var(--nt-t-fg);
+    background: transparent;
+    color: inherit;
 }
 
 .base--C {
-    background: var(--nt-c-bg);
-    color: var(--nt-c-fg);
+    background: transparent;
+    color: inherit;
 }
 
 .base--G {
-    background: var(--nt-g-bg);
-    color: var(--nt-g-fg);
+    background: transparent;
+    color: inherit;
 }
 
 .base--GAP {
-    background: var(--nt-gap-bg);
-    color: var(--nt-gap-fg);
+    background: transparent;
+    color: inherit;
 }
 
 .base--mismatch {
-    outline: 1px solid rgba(245, 158, 11, 0.7);
-    outline-offset: -1px;
+    color: var(--mut-mismatch);
     font-weight: 700;
 }
 
 .base--insertion {
-    text-decoration: underline;
-    text-decoration-color: rgba(37, 99, 235, 0.8);
-    text-underline-offset: 2px;
+    color: var(--mut-insertion);
     font-weight: 700;
+    border-bottom: 2px solid rgba(37, 99, 235, 0.9);
 }
 
 .base--deletion {
-    background: var(--nt-gap-bg);
-    color: var(--nt-gap-fg);
+    color: var(--mut-deletion);
     font-weight: 700;
 }
 
+.base--complex {
+    color: var(--mut-complex);
+    font-weight: 800;
+}
+
 .base--cutsite-region {
-    background: var(--region-cutsite-base);
+    background: transparent;
 }
 
 .base--consite-region {
-    background: var(--region-consite-base);
+    background: transparent;
 }
 
 .base--pam-region {
-    background: var(--region-pam-base);
+    background: transparent;
 }
+
+.base--match {
+    color: var(--text-soft);
+    font-weight: 400;
+    opacity: 0.6;
+}
+
+.base--mutation-over-cutsite {}
+
+.base--mutation-over-pam {}
 
 .error-banner {
     margin: 16px 0 0;
