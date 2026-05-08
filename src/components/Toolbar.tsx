@@ -24,6 +24,8 @@ export default function Toolbar({
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+    const statsText = `n = ${totalRows} alignments \u00b7 filtered = ${visibleRows}`;
+
     function handleTextSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         onFileChange(new File([tsvText], 'pasted-alignment.tsv', { type: 'text/tab-separated-values' }));
@@ -47,41 +49,44 @@ export default function Toolbar({
 
     return (
         <header className="toolbar">
-            <div className="toolbar__summary">
+            <div className="toolbar__brand">
                 <div className="brand">
                     <h1>darlin-view</h1>
                     <p>Interactive DARLIN reference and alignment browser</p>
                 </div>
-                <div className="stats">
-                    <span>Total rows: {totalRows}</span>
-                    <span>Visible rows: {visibleRows}</span>
-                </div>
+                <p className="stats" aria-label="Dataset summary">
+                    {statsText}
+                </p>
             </div>
-            <div className="toolbar__actions">
-                <div className="toolbar__filters">
-                    <label className="field">
-                        Array
-                        <select
-                            aria-label="Array"
-                            value={selectedArray}
-                            onChange={(event) => onArrayChange(event.target.value as ArrayId)}
-                        >
-                            <option value="CA">CA</option>
-                            <option value="TA">TA</option>
-                            <option value="RA">RA</option>
-                        </select>
-                    </label>
-                    <label className="field">
-                        Search
-                        <input
-                            aria-label="Search"
-                            value={queryText}
-                            onChange={(event) => onQueryTextChange(event.target.value)}
-                            placeholder="Filter by aligned sequence"
-                        />
-                    </label>
+
+            <div className="toolbar__controls" aria-label="Controls">
+                <label className="field">
+                    Array
+                    <select
+                        aria-label="Array"
+                        value={selectedArray}
+                        onChange={(event) => onArrayChange(event.target.value as ArrayId)}
+                    >
+                        <option value="CA">CA</option>
+                        <option value="TA">TA</option>
+                        <option value="RA">RA</option>
+                    </select>
+                </label>
+                <label className="field">
+                    Search
+                    <input
+                        aria-label="Search"
+                        value={queryText}
+                        onChange={(event) => onQueryTextChange(event.target.value)}
+                        placeholder="Filter by aligned sequence"
+                    />
+                </label>
+            </div>
+
+            <div className="toolbar__import" aria-label="Import alignment">
+                <div className="import-file">
                     <label className="field upload-field">
-                        Upload alignment TSV
+                        Import alignment
                         <input
                             ref={fileInputRef}
                             aria-label="Upload TSV"
@@ -90,26 +95,46 @@ export default function Toolbar({
                             onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
                         />
                     </label>
-                    <div className="upload-actions" aria-label="Upload actions">
-                        <button type="button" onClick={handleFileUpload} disabled={!selectedFile}>
+                    <div className="import-actions" aria-label="Import file actions">
+                        <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={handleFileUpload}
+                            disabled={!selectedFile}
+                            aria-label="Upload alignment file"
+                        >
                             Upload
                         </button>
-                        <button type="button" onClick={handleFileClear} disabled={!selectedFile && totalRows === 0}>
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={handleFileClear}
+                            disabled={!selectedFile && totalRows === 0}
+                            aria-label="Clear alignments"
+                        >
                             Clear
                         </button>
                     </div>
                 </div>
-                <form className="paste-form" onSubmit={handleTextSubmit}>
-                    <label htmlFor="alignment-tsv-text">Paste alignment TSV</label>
-                    <textarea
-                        id="alignment-tsv-text"
-                        aria-label="Paste TSV"
-                        value={tsvText}
-                        onChange={(event) => setTsvText(event.target.value)}
-                        placeholder={'aligned_query\taligned_ref\nAC-G\tACCG'}
-                        rows={3}
-                    />
-                    <button type="submit" disabled={tsvText.trim().length === 0}>
+
+                <form className="import-paste" onSubmit={handleTextSubmit} aria-label="Paste TSV">
+                    <label className="field" htmlFor="alignment-tsv-text">
+                        Paste TSV
+                        <textarea
+                            id="alignment-tsv-text"
+                            aria-label="Paste TSV"
+                            value={tsvText}
+                            onChange={(event) => setTsvText(event.target.value)}
+                            placeholder={'aligned_query\taligned_ref\nAC-G\tACCG'}
+                            rows={3}
+                        />
+                    </label>
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={tsvText.trim().length === 0}
+                        aria-label="Submit pasted TSV"
+                    >
                         Submit TSV
                     </button>
                 </form>

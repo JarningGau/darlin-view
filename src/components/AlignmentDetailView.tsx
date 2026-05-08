@@ -25,6 +25,46 @@ function isCoordinateInRanges(coordinate: number | null, ranges: Array<{ start: 
     return coordinate !== null && ranges.some((range) => coordinate >= range.start && coordinate < range.end);
 }
 
+type MutationTagKind = 'deletion' | 'insertion' | 'mismatch';
+
+function mutationTagKind(annotation: string): MutationTagKind {
+    const lower = annotation.toLowerCase();
+    if (lower.includes('del') && !lower.includes('ins')) {
+        return 'deletion';
+    }
+    if (lower.includes('ins') && !lower.includes('del')) {
+        return 'insertion';
+    }
+    if (lower.includes('delins')) {
+        return 'mismatch';
+    }
+    return 'mismatch';
+}
+
+function formatMutationTagLabel(annotation: string) {
+    const match = annotation.match(/^(\d+)_(\d+)(.+)$/);
+    if (!match) {
+        return annotation;
+    }
+
+    const start = Number(match[1]);
+    const end = Number(match[2]);
+    const op = match[3];
+    const opLabel = op.startsWith('delins') ? 'delins' : op.startsWith('ins') ? 'ins' : op.startsWith('del') ? 'del' : op;
+    return `${start}\u2013${end} ${opLabel}`;
+}
+
+function baseToken(base: string) {
+    const upper = base.toUpperCase();
+    if (upper === 'A' || upper === 'C' || upper === 'G' || upper === 'T') {
+        return upper;
+    }
+    if (base === '-') {
+        return 'GAP';
+    }
+    return 'N';
+}
+
 const CELL_WIDTH = 27;
 
 export default function AlignmentDetailView({ row, reference }: AlignmentDetailViewProps) {
@@ -108,81 +148,176 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
     }
 
     return (
-        <section className="panel">
-            <div className="panel-header">
-                <h2>Alignment Detail</h2>
-                <p>Row {row.rowNumber}</p>
-            </div>
-            <div className="mutation-annotation">
-                <div className="mutation-annotation__header">
-                    <h3 className="alignment-heading">Mutation annotation</h3>
-                    <button
-                        type="button"
-                        className="mutation-annotation__copy"
-                        disabled={!summary.mutationAnnotation}
-                        aria-label="Copy mutation annotation"
-                        onClick={async () => {
-                            try {
-                                await copyToClipboard(summary.mutationAnnotation || '');
-                                setCopyState('copied');
-                            } catch {
-                                setCopyState('error');
-                            }
-                        }}
-                    >
-                        {copyState === 'copied' ? 'Copied' : copyState === 'error' ? 'Copy failed' : 'Copy'}
-                    </button>
+        <section className="panel detail-panel-inner" aria-label={`Alignment detail for row ${row.rowNumber}`}>
+            <div className="detail-header">
+                <h2 className="panel-title">Alignment detail</h2>
+                <div className="detail-header__right">
+                    <span className="muted">Row {row.rowNumber}</span>
                 </div>
-                <code>{summary.mutationAnnotation || 'None'}</code>
             </div>
-            <h3 className="alignment-heading">Alignment</h3>
-            <div ref={containerRef} className="alignment-segments">
-                {alignmentSegments.map((segment, segmentIndex) => (
-                    <div
-                        key={`segment-${segmentIndex}`}
-                        className="alignment-segment"
-                        data-testid={`alignment-segment-${segmentIndex}`}
-                    >
-                        <div className="alignment-ruler">
-                            {segment.map((column, index) => (
-                                <span
-                                    key={`ruler-${segmentIndex}-${index}`}
-                                    className="ruler-cell"
-                                    data-testid={`ruler-cell-${segmentIndex}-${index}`}
-                                    aria-label={`Reference position ${column.coordinate !== null ? column.coordinate + 1 : 'gap'
-                                        }`}
-                                >
-                                    {column.coordinate !== null ? column.coordinate + 1 : '·'}
-                                </span>
-                            ))}
-                        </div>
-                        <div className="alignment-track">
-                            {segment.map((column, index) => (
-                                <span
-                                    key={`ref-${segmentIndex}-${index}`}
-                                    className={`base base--${column.state}${column.isConsite ? ' base--consite-region' : ''}${column.isCutsite ? ' base--cutsite-region' : ''}${column.isPam ? ' base--pam-region' : ''}`}
-                                >
-                                    {column.refBase}
-                                </span>
-                            ))}
-                        </div>
-                        <div className="alignment-track">
-                            {segment.map((column, index) => (
-                                <span
-                                    key={`query-${segmentIndex}-${index}`}
-                                    className={`base base--${column.state}${column.isConsite ? ' base--consite-region' : ''}${column.isCutsite ? ' base--cutsite-region' : ''}${column.isPam ? ' base--pam-region' : ''}`}
-                                >
-                                    {column.queryBase}
-                                </span>
-                            ))}
-                        </div>
+
+            <section className="mutation-panel" aria-label="Mutation annotation">
+                <div className="mutation-panel__header">
+                    <h3 className="section-title">Mutation annotation</h3>
+                    <div className="mutation-panel__actions" aria-label="Export actions">
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            disabled={!summary.mutationAnnotation}
+                            aria-label="Copy annotation"
+                            onClick={async () => {
+                                try {
+                                    await copyToClipboard(summary.mutationAnnotation || '');
+                                    setCopyState('copied');
+                                } catch {
+                                    setCopyState('error');
+                                }
+                            }}
+                        >
+                            {copyState === 'copied'
+                                ? 'Copied'
+                                : copyState === 'error'
+                                    ? 'Copy failed'
+                                    : 'Copy annotation'}
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            disabled
+                            aria-label="Export SVG"
+                            title="Export SVG (coming soon)"
+                        >
+                            Export SVG
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            disabled
+                            aria-label="Export PNG"
+                            title="Export PNG (coming soon)"
+                        >
+                            Export PNG
+                        </button>
                     </div>
-                ))}
-            </div>
-            <div className="reference-overview">
+                </div>
+
+                <div className="mutation-tags" role="list" aria-label="Mutation tags">
+                    {summary.mutationAnnotations.length === 0 ? (
+                        <span className="muted">None</span>
+                    ) : (
+                        summary.mutationAnnotations.map((annotation) => {
+                            const kind = mutationTagKind(annotation);
+                            const label = formatMutationTagLabel(annotation);
+                            return (
+                                <button
+                                    key={annotation}
+                                    type="button"
+                                    className={`mutation-tag mutation-tag--${kind}`}
+                                    role="listitem"
+                                    aria-label={`Mutation ${label}`}
+                                    onClick={async () => {
+                                        try {
+                                            await copyToClipboard(annotation);
+                                        } catch {
+                                            // Ignore per-tag copy failures; the main copy button has feedback.
+                                        }
+                                    }}
+                                    title="Click to copy"
+                                >
+                                    {label}
+                                </button>
+                            );
+                        })
+                    )}
+                </div>
+            </section>
+
+            <section aria-label="Alignment">
+                <h3 className="section-title">Alignment</h3>
+                <div ref={containerRef} className="alignment-segments">
+                    {alignmentSegments.map((segment, segmentIndex) => {
+                        const overview = segment.map((column) => {
+                            if (column.state === 'match') {
+                                return 'match';
+                            }
+                            return column.state;
+                        });
+
+                        return (
+                            <div
+                                key={`segment-${segmentIndex}`}
+                                className="alignment-segment"
+                                data-testid={`alignment-segment-${segmentIndex}`}
+                            >
+                                <div className="alignment-overview" aria-label="Overview">
+                                    <span className="alignment-overview__label">Overview</span>
+                                    <div className="alignment-overview__track" aria-hidden="true">
+                                        {overview.map((state, index) => (
+                                            <span
+                                                key={`ov-${segmentIndex}-${index}`}
+                                                className={`overview-cell overview-cell--${state}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="alignment-ruler" aria-label="Coordinate ruler">
+                                    <span className="alignment-ruler__label" aria-hidden="true" />
+                                    <div className="alignment-ruler__cells">
+                                        {segment.map((column, index) => {
+                                            const position = column.coordinate !== null ? column.coordinate + 1 : null;
+                                            const isMajor = position !== null && position % 10 === 0;
+                                            return (
+                                                <span
+                                                    key={`ruler-${segmentIndex}-${index}`}
+                                                    className={isMajor ? 'ruler-cell ruler-cell--major' : 'ruler-cell'}
+                                                    data-testid={`ruler-cell-${segmentIndex}-${index}`}
+                                                    aria-label={`Reference position ${position ?? 'gap'}`}
+                                                >
+                                                    {isMajor ? position : ''}
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="alignment-track-row" aria-label="Reference sequence">
+                                    <span className="alignment-track-row__label">REF</span>
+                                    <div className="alignment-track">
+                                        {segment.map((column, index) => (
+                                            <span
+                                                key={`ref-${segmentIndex}-${index}`}
+                                                className={`base base--${baseToken(column.refBase)} base--${column.state}${column.isConsite ? ' base--consite-region' : ''}${column.isCutsite ? ' base--cutsite-region' : ''}${column.isPam ? ' base--pam-region' : ''}`}
+                                            >
+                                                {column.refBase}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="alignment-track-row" aria-label="Read sequence">
+                                    <span className="alignment-track-row__label">READ</span>
+                                    <div className="alignment-track">
+                                        {segment.map((column, index) => (
+                                            <span
+                                                key={`query-${segmentIndex}-${index}`}
+                                                className={`base base--${baseToken(column.queryBase)} base--${column.state}${column.isConsite ? ' base--consite-region' : ''}${column.isCutsite ? ' base--cutsite-region' : ''}${column.isPam ? ' base--pam-region' : ''}`}
+                                            >
+                                                {column.queryBase}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
+
+            <section className="reference-overview" aria-label="Reference structure">
                 <div className="reference-overview__header">
-                    <h3>Reference structure</h3>
-                    <p>{reference.displayName}</p>
+                    <h3 className="section-title">Reference structure</h3>
+                    <p className="muted">{reference.displayName}</p>
                 </div>
                 <div className="structure-strip" role="list" aria-label="Reference structure blocks">
                     {structureBlocks.map((block) => (
@@ -198,7 +333,7 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                         </div>
                     ))}
                 </div>
-            </div>
+            </section>
         </section>
     );
 }
