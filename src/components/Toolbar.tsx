@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import type { ArrayId } from '../types';
 
 interface ToolbarProps {
@@ -21,10 +21,28 @@ export default function Toolbar({
     onFileChange
 }: ToolbarProps) {
     const [tsvText, setTsvText] = useState('');
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     function handleTextSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         onFileChange(new File([tsvText], 'pasted-alignment.tsv', { type: 'text/tab-separated-values' }));
+    }
+
+    function handleFileUpload() {
+        if (!selectedFile) {
+            return;
+        }
+
+        onFileChange(selectedFile);
+    }
+
+    function handleFileClear() {
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+        onFileChange(null);
     }
 
     return (
@@ -65,12 +83,21 @@ export default function Toolbar({
                     <label className="field upload-field">
                         Upload alignment TSV
                         <input
+                            ref={fileInputRef}
                             aria-label="Upload TSV"
                             type="file"
                             accept=".tsv,text/tab-separated-values"
-                            onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
+                            onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
                         />
                     </label>
+                    <div className="upload-actions" aria-label="Upload actions">
+                        <button type="button" onClick={handleFileUpload} disabled={!selectedFile}>
+                            Upload
+                        </button>
+                        <button type="button" onClick={handleFileClear} disabled={!selectedFile && totalRows === 0}>
+                            Clear
+                        </button>
+                    </div>
                 </div>
                 <form className="paste-form" onSubmit={handleTextSubmit}>
                     <label htmlFor="alignment-tsv-text">Paste alignment TSV</label>

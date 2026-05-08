@@ -14,6 +14,7 @@ test('uploads TSV rows and renders structure, cutsite emphasis, and wrapped alig
     );
 
     await user.upload(screen.getByLabelText('Upload TSV'), file);
+    await user.click(screen.getByRole('button', { name: 'Upload' }));
 
     expect(await screen.findByText(/Total rows:\s*2/)).toBeInTheDocument();
 
@@ -35,6 +36,10 @@ test('uploads TSV rows and renders structure, cutsite emphasis, and wrapped alig
 
     const list = screen.getByRole('list', { name: 'Alignment rows' });
     expect(within(list).getAllByRole('button')).toHaveLength(1);
+
+    await user.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(screen.getByText(/Total rows:\s*0/)).toBeInTheDocument();
+    expect(screen.getByText('No rows loaded yet.')).toBeInTheDocument();
 });
 
 test('loads TSV rows submitted from pasted text', async () => {
@@ -64,6 +69,7 @@ test('wraps alignment detail into multiple segments when the available width shr
     );
 
     await user.upload(screen.getByLabelText('Upload TSV'), file);
+    await user.click(screen.getByRole('button', { name: 'Upload' }));
     await user.click(await screen.findByRole('button', { name: /Row 1/ }));
 
     const firstTrackBases = screen
@@ -97,6 +103,7 @@ test('renders multi-digit positions as horizontal labels in alignment detail', a
     );
 
     await user.upload(screen.getByLabelText('Upload TSV'), file);
+    await user.click(screen.getByRole('button', { name: 'Upload' }));
     await user.click(await screen.findByRole('button', { name: /Row 1/ }));
 
     const firstSegment = screen.getByTestId('alignment-segment-0');
@@ -115,6 +122,7 @@ test('shows a row-level validation error for malformed uploads', async () => {
     });
 
     await user.upload(screen.getByLabelText('Upload TSV'), file);
+    await user.click(screen.getByRole('button', { name: 'Upload' }));
 
     expect(
         await screen.findByText('Row 1: aligned_query and aligned_ref must have equal length')

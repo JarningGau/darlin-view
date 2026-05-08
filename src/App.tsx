@@ -56,6 +56,9 @@ export default function App() {
 
     async function handleFileChange(file: File | null) {
         if (!file) {
+            setRows([]);
+            setSelectedRowId(null);
+            setErrorMessage(null);
             return;
         }
 
