@@ -67,7 +67,7 @@ function querySequenceForReferenceSpan(
         const coordinate = referenceCoordinates[index];
 
         if (coordinate === null) {
-            if (previousPosition >= startPosition && previousPosition < endPosition) {
+            if (previousPosition >= startPosition && previousPosition <= endPosition) {
                 querySequence += alignedQuery[index];
             }
             continue;

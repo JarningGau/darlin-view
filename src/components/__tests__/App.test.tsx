@@ -23,7 +23,7 @@ test('uploads TSV rows and renders structure, cutsite emphasis, and wrapped alig
 
     expect(await screen.findByText('Alignment detail')).toBeInTheDocument();
     expect(screen.getByText('Mutation annotation')).toBeInTheDocument();
-    expect(screen.getByRole('listitem', { name: /Mutation 3–3 del/i })).toBeInTheDocument();
+    expect(screen.getByLabelText('Mutation annotation output')).toHaveTextContent('3_3del');
     expect(screen.getByText('Reference structure')).toBeInTheDocument();
     expect(screen.getAllByText(/Cutsite/i).length).toBeGreaterThan(0);
 

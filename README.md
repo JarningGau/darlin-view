@@ -1,13 +1,14 @@
 # darlin-view
 
-`darlin-view` is a local web app for browsing DARLIN reference arrays and inspecting precomputed `query/ref` alignment results.
+`darlin-view` is a local React/Vite web app for browsing DARLIN reference arrays and inspecting precomputed `query/ref` alignment results.
 
 Current scope:
 
 - built-in `CA`, `TA`, and `RA` reference definitions
-- reference structure visualization
-- TSV upload for `aligned_query` / `aligned_ref`
+- reference structure visualization with conserved, cutsite, and PAM context
+- TSV upload or paste input for `aligned_query` / `aligned_ref`
 - row list, search, and per-row alignment detail view
+- mutation annotation generation and copy-to-clipboard actions
 
 ## Requirements
 
@@ -42,9 +43,15 @@ To run tests:
 npm run test:run
 ```
 
+For watch mode while developing:
+
+```bash
+npm test
+```
+
 ## Configuration
 
-This first version does not use an external config file.
+This version does not use an external config file.
 
 The app is configured through two built-in assumptions:
 
@@ -52,9 +59,9 @@ The app is configured through two built-in assumptions:
    Choose one of `CA`, `TA`, or `RA` from the top toolbar.
 
 2. Uploaded TSV format
-   Upload a TSV file containing aligned sequence pairs.
+   Upload or paste TSV content containing aligned sequence pairs.
 
-If you want to change the built-in reference definitions, edit [src/data/references.ts](/home/jarning/test/darlin-view/src/data/references.ts:1).
+If you want to change the built-in reference definitions, edit [`src/data/references.ts`](src/data/references.ts).
 
 ## TSV Input Format
 
@@ -94,23 +101,12 @@ If a row is invalid, the UI shows a row-level error message.
 1. Run `npm run dev`.
 2. Open the local app in your browser.
 3. Choose the target array: `CA`, `TA`, or `RA`.
-4. Upload a TSV file with `aligned_query` and `aligned_ref`.
+4. Upload a TSV file or paste TSV content with `aligned_query` and `aligned_ref`.
 5. Browse rows in the left panel.
 6. Use the `Search` box to filter rows by substring.
 7. Click a row to inspect its alignment detail on the right.
 
 ## What The UI Shows
-
-### Reference Structure
-
-The top-right panel shows the selected built-in reference:
-
-- `Prefix`
-- `Segment 1..10`
-- `PAM 1..10`
-- `Postfix`
-
-It also shows the full reference sequence below the structure blocks.
 
 ### Alignment List
 
@@ -123,30 +119,43 @@ The left panel shows:
 
 ### Alignment Detail
 
-The bottom-right panel shows:
+The detail panel shows:
 
 - aligned reference row
 - aligned query row
 - coordinate ruler
-- mismatch / insertion / deletion highlighting
+- reference context for conserved, cutsite, and PAM regions
+- mismatch, insertion, deletion, and complex edit highlighting
 - summary counts for aligned length, mismatches, insertion columns, deletion columns, and edited regions
+- mutation annotations such as `12_14del`, `12_14delinsAC`, or `12_13insG`
+- copy buttons for the full annotation string and individual mutation tags
+- selected reference structure with block coordinates
 
 Current edit semantics:
 
 - insertion: `aligned_ref` is `-`
 - deletion: `aligned_query` is `-`
+- mismatch: both aligned bases are present and different
+- complex edit: one contiguous edited region contains more than one basic mutation type
+
+Mutation annotations use 1-based reference coordinates. Adjacent mutation events within three reference bases are merged into a single `delins` annotation.
 
 ## Notes
 
 - `darlin-view` does not compute alignments itself. Upload precomputed alignment results.
 - The app does not infer whether your TSV belongs to `CA`, `TA`, or `RA`; you must choose the correct array manually.
 - There is no backend in this version. All parsing and rendering happen in the browser.
+- SVG and PNG export buttons are present as disabled placeholders for a future release.
 
 ## Development
 
 Important source files:
 
-- [src/App.tsx](/home/jarning/test/darlin-view/src/App.tsx:1): top-level app state and upload flow
-- [src/data/references.ts](/home/jarning/test/darlin-view/src/data/references.ts:1): built-in `CA/TA/RA` definitions
-- [src/lib/tsv.ts](/home/jarning/test/darlin-view/src/lib/tsv.ts:1): TSV parsing and validation
-- [src/lib/alignment.ts](/home/jarning/test/darlin-view/src/lib/alignment.ts:1): alignment summary and coordinate mapping
+- [`src/App.tsx`](src/App.tsx): top-level app state and import flow
+- [`src/components/Toolbar.tsx`](src/components/Toolbar.tsx): array selection, search, TSV upload, and TSV paste controls
+- [`src/components/AlignmentList.tsx`](src/components/AlignmentList.tsx): filtered row list and row summaries
+- [`src/components/AlignmentDetailView.tsx`](src/components/AlignmentDetailView.tsx): mutation annotations, alignment tracks, and reference context
+- [`src/data/references.ts`](src/data/references.ts): built-in `CA/TA/RA` definitions
+- [`src/lib/tsv.ts`](src/lib/tsv.ts): TSV parsing and validation
+- [`src/lib/alignment.ts`](src/lib/alignment.ts): alignment summary, coordinate mapping, and mutation annotation generation
+- [`src/lib/referenceLayout.ts`](src/lib/referenceLayout.ts): reference block derivation

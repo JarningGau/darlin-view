@@ -27,35 +27,6 @@ function isCoordinateInRanges(coordinate: number | null, ranges: Array<{ start: 
     return coordinate !== null && ranges.some((range) => coordinate >= range.start && coordinate < range.end);
 }
 
-type MutationTagKind = 'deletion' | 'insertion' | 'mismatch';
-
-function mutationTagKind(annotation: string): MutationTagKind {
-    const lower = annotation.toLowerCase();
-    if (lower.includes('del') && !lower.includes('ins')) {
-        return 'deletion';
-    }
-    if (lower.includes('ins') && !lower.includes('del')) {
-        return 'insertion';
-    }
-    if (lower.includes('delins')) {
-        return 'mismatch';
-    }
-    return 'mismatch';
-}
-
-function formatMutationTagLabel(annotation: string) {
-    const match = annotation.match(/^(\d+)_(\d+)(.+)$/);
-    if (!match) {
-        return annotation;
-    }
-
-    const start = Number(match[1]);
-    const end = Number(match[2]);
-    const op = match[3];
-    const opLabel = op.startsWith('delins') ? 'delins' : op.startsWith('ins') ? 'ins' : op.startsWith('del') ? 'del' : op;
-    return `${start}\u2013${end} ${opLabel}`;
-}
-
 function baseToken(base: string) {
     const upper = base.toUpperCase();
     if (upper === 'A' || upper === 'C' || upper === 'G' || upper === 'T') {
@@ -234,34 +205,8 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                     </div>
                 </div>
 
-                <div className="mutation-tags" role="list" aria-label="Mutation tags">
-                    {summary.mutationAnnotations.length === 0 ? (
-                        <span className="muted">None</span>
-                    ) : (
-                        summary.mutationAnnotations.map((annotation) => {
-                            const kind = mutationTagKind(annotation);
-                            const label = formatMutationTagLabel(annotation);
-                            return (
-                                <button
-                                    key={annotation}
-                                    type="button"
-                                    className={`mutation-tag mutation-tag--${kind}`}
-                                    role="listitem"
-                                    aria-label={`Mutation ${label}`}
-                                    onClick={async () => {
-                                        try {
-                                            await copyToClipboard(annotation);
-                                        } catch {
-                                            // Ignore per-tag copy failures; the main copy button has feedback.
-                                        }
-                                    }}
-                                    title="Click to copy"
-                                >
-                                    {label}
-                                </button>
-                            );
-                        })
-                    )}
+                <div className="mutation-annotation-output" aria-label="Mutation annotation output">
+                    {summary.mutationAnnotation || <span className="muted">None</span>}
                 </div>
             </section>
 

@@ -127,4 +127,10 @@ describe('summarizeAlignment', () => {
             '23_172delinsACG,181_186delinsTACT,195_244delinsCATCGGACCAT,266_267del'
         );
     });
+
+    test('includes insertions after the final reference base in merged delins sequence', () => {
+        const summary = summarizeAlignment('AAAAAAAAACT---GAAAAAA', 'AAAAAAAAAATTTT-AAAAAA');
+
+        expect(summary.mutationAnnotation).toBe('10_14delinsCTG');
+    });
 });
