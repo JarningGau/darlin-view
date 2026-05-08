@@ -1,8 +1,8 @@
-# darlin-view Design Spec
+# darlin-viewer Design Spec
 
 ## Overview
 
-`darlin-view` is a local web application for visualizing DARLIN reference arrays and browsing query-to-reference alignment results. The first version focuses on interactive inspection, not sequence analysis. It treats alignment results as precomputed input and renders them against built-in definitions for the three supported DARLIN arrays:
+`darlin-viewer` is a local web application for visualizing DARLIN reference arrays and browsing query-to-reference alignment results. The first version focuses on interactive inspection, not sequence analysis. It treats alignment results as precomputed input and renders them against built-in definitions for the three supported DARLIN arrays:
 
 - `CA`
 - `TA`

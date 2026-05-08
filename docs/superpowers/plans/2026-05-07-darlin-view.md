@@ -1,4 +1,4 @@
-# darlin-view Implementation Plan
+# darlin-viewer Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -69,9 +69,9 @@ Create `src/components/__tests__/App.test.tsx`:
 import { render, screen } from '@testing-library/react';
 import App from '../../App';
 
-test('renders the darlin-view shell', () => {
+test('renders the darlin-viewer shell', () => {
   render(<App />);
-  expect(screen.getByRole('heading', { name: 'darlin-view' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'darlin-viewer' })).toBeInTheDocument();
   expect(screen.getByLabelText('Array')).toHaveValue('CA');
   expect(screen.getByText('Upload alignment TSV')).toBeInTheDocument();
 });
@@ -89,7 +89,7 @@ Create `package.json`:
 
 ```json
 {
-  "name": "darlin-view",
+  "name": "darlin-viewer",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -195,7 +195,7 @@ Create `index.html`:
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>darlin-view</title>
+    <title>darlin-viewer</title>
   </head>
   <body>
     <div id="root"></div>
@@ -267,7 +267,7 @@ Create `src/App.tsx`:
 export default function App() {
   return (
     <main>
-      <h1>darlin-view</h1>
+      <h1>darlin-viewer</h1>
       <label>
         Array
         <select aria-label="Array" defaultValue="CA">
@@ -292,7 +292,7 @@ Expected: PASS with 1 passing test.
 
 ```bash
 git add package.json tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts index.html src
-git commit -m "build: scaffold darlin-view frontend"
+git commit -m "build: scaffold darlin-viewer frontend"
 ```
 
 ## Task 2: Add Reference Domain Types and Built-In Array Definitions
@@ -794,7 +794,7 @@ export default function Toolbar({
   return (
     <header className="toolbar">
       <div className="brand">
-        <h1>darlin-view</h1>
+        <h1>darlin-viewer</h1>
         <p>Interactive DARLIN reference and alignment browser</p>
       </div>
       <label>
@@ -1464,7 +1464,7 @@ Expected: PASS with a production bundle emitted to `dist/`.
 
 ```bash
 git add src/App.tsx src/components/AlignmentList.tsx src/components/ReferenceStructureView.tsx src/styles.css src/components/__tests__/App.test.tsx
-git commit -m "fix: polish darlin-view empty and error states"
+git commit -m "fix: polish darlin-viewer empty and error states"
 ```
 
 ## Self-Review

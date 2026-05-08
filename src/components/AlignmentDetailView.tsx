@@ -164,7 +164,7 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
 
     function buildExport() {
         const { svg } = buildAlignmentSvg({
-            title: `darlin-view · ${reference.displayName}`,
+            title: `darlin-viewer · ${reference.displayName}`,
             rowLabel: `Row ${row.rowNumber}`,
             mutationAnnotation: summary.mutationAnnotation || 'None',
             segments: alignmentSegments,
@@ -177,7 +177,7 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
         });
 
         const safeRef = reference.displayName.replaceAll(/[^a-z0-9-_]+/gi, '-').replaceAll(/-+/g, '-').replaceAll(/^-|-$/g, '');
-        const filenameBase = `darlin-view_${safeRef || 'reference'}_row-${row.rowNumber}`;
+        const filenameBase = `darlin-viewer_${safeRef || 'reference'}_row-${row.rowNumber}`;
         return { svg, filenameBase };
     }
 

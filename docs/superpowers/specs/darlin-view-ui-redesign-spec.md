@@ -1,8 +1,8 @@
-# darlin-view UI Redesign Spec
+# darlin-viewer UI Redesign Spec
 
 ## Goal
 
-Redesign the current `darlin-view` UI to look more like a scientific
+Redesign the current `darlin-viewer` UI to look more like a scientific
 sequence/alignment browser rather than a generic dashboard.
 
 Target visual references:
@@ -95,7 +95,7 @@ Refactor header into:
 Layout:
 
 ``` text
-darlin-view
+darlin-viewer
 Interactive DARLIN reference and alignment browser
 
 Array: [CA v]   Search: [Filter by aligned sequence................]

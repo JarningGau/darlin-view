@@ -1,6 +1,6 @@
-# darlin-view
+# darlin-viewer
 
-`darlin-view` is a local React/Vite web app for browsing DARLIN reference arrays and inspecting precomputed `query/ref` alignment results.
+`darlin-viewer` is a local React/Vite web app for browsing DARLIN reference arrays and inspecting precomputed `query/ref` alignment results.
 
 Current scope:
 
@@ -142,7 +142,7 @@ Mutation annotations use 1-based reference coordinates. Adjacent mutation events
 
 ## Notes
 
-- `darlin-view` does not compute alignments itself. Upload precomputed alignment results.
+- `darlin-viewer` does not compute alignments itself. Upload precomputed alignment results.
 - The app does not infer whether your TSV belongs to `CA`, `TA`, or `RA`; you must choose the correct array manually.
 - There is no backend in this version. All parsing and rendering happen in the browser.
 - SVG and PNG export buttons are present as disabled placeholders for a future release.

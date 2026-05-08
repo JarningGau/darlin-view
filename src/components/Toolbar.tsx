@@ -47,7 +47,7 @@ export default function Toolbar({
         <header className="toolbar">
             <div className="toolbar__brand">
                 <div className="brand">
-                    <h1>darlin-view</h1>
+                    <h1>darlin-viewer</h1>
                     <p>Interactive DARLIN reference and alignment browser</p>
                 </div>
                 <p className="stats" aria-label="Dataset summary">
