@@ -256,17 +256,8 @@ textarea {
     font-family: Arial, sans-serif;
 }
 
-.structure-legend {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    color: var(--muted);
-    font-size: 0.9rem;
-    margin-bottom: 12px;
-}
-
 .reference-overview {
-    margin-bottom: 18px;
+    margin-top: 18px;
 }
 
 .reference-overview__header {
@@ -309,13 +300,6 @@ textarea {
     box-shadow: inset 0 0 0 1px var(--accent);
 }
 
-.summary-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 16px;
-    margin-bottom: 16px;
-}
-
 .mutation-annotation {
     display: grid;
     gap: 6px;
@@ -334,9 +318,14 @@ textarea {
     border-radius: 10px;
     background: rgba(20, 92, 83, 0.07);
     color: var(--ink);
+    font-family: Arial, sans-serif;
     overflow-x: auto;
     padding: 8px 10px;
     white-space: nowrap;
+}
+
+.alignment-heading {
+    margin: 0 0 12px;
 }
 
 .alignment-segments {

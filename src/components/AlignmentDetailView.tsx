@@ -82,44 +82,11 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                 <h2>Alignment Detail</h2>
                 <p>Row {row.rowNumber}</p>
             </div>
-            <div className="reference-overview">
-                <div className="reference-overview__header">
-                    <h3>Reference overview</h3>
-                    <p>{reference.displayName}</p>
-                </div>
-                <div className="structure-strip" role="list" aria-label="Reference overview blocks">
-                    {structureBlocks.map((block) => (
-                        <div
-                            key={`${block.type}-${block.start}`}
-                            className={`structure-block structure-block--${block.type}`}
-                            title={`${block.label}: ${block.start}-${block.end - 1}`}
-                        >
-                            <span>{block.label}</span>
-                            <small>
-                                {block.start}-{block.end - 1}
-                            </small>
-                        </div>
-                    ))}
-                </div>
-                <div className="structure-legend">
-                    <span>Prefix</span>
-                    <span>Conserved</span>
-                    <span>Cutsite</span>
-                    <span>PAM</span>
-                    <span>Postfix</span>
-                </div>
-            </div>
-            <div className="summary-grid">
-                <span>Aligned length: {summary.alignedLength}</span>
-                <span>Mismatches: {summary.mismatchCount}</span>
-                <span>Insertion columns: {summary.insertionCount}</span>
-                <span>Deletion columns: {summary.deletionCount}</span>
-                <span>Edited regions: {summary.editedRegionCount}</span>
-            </div>
             <div className="mutation-annotation">
-                <span>Mutation annotation</span>
+                <h3 className="alignment-heading">Mutation annotation</h3>
                 <code>{summary.mutationAnnotation || 'None'}</code>
             </div>
+            <h3 className="alignment-heading">Alignment</h3>
             <div ref={containerRef} className="alignment-segments">
                 {alignmentSegments.map((segment, segmentIndex) => (
                     <div
@@ -162,6 +129,26 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                         </div>
                     </div>
                 ))}
+            </div>
+            <div className="reference-overview">
+                <div className="reference-overview__header">
+                    <h3>Reference structure</h3>
+                    <p>{reference.displayName}</p>
+                </div>
+                <div className="structure-strip" role="list" aria-label="Reference structure blocks">
+                    {structureBlocks.map((block) => (
+                        <div
+                            key={`${block.type}-${block.start}`}
+                            className={`structure-block structure-block--${block.type}`}
+                            title={`${block.label}: ${block.start}-${block.end - 1}`}
+                        >
+                            <span>{block.label}</span>
+                            <small>
+                                {block.start}-{block.end - 1}
+                            </small>
+                        </div>
+                    ))}
+                </div>
             </div>
         </section>
     );
