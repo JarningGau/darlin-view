@@ -66,6 +66,9 @@ function baseToken(base: string) {
 }
 
 const CELL_WIDTH = 27;
+const TRACK_LABEL_WIDTH = 72;
+const TRACK_LABEL_GAP = 10;
+const TRACK_RESERVED_WIDTH = TRACK_LABEL_WIDTH + TRACK_LABEL_GAP;
 
 export default function AlignmentDetailView({ row, reference }: AlignmentDetailViewProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -109,7 +112,8 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
 
         const observer = new ResizeObserver((entries) => {
             const width = entries[0]?.contentRect.width ?? node.clientWidth;
-            const nextColumns = Math.max(1, Math.floor(width / CELL_WIDTH));
+            const tracksWidth = Math.max(0, width - TRACK_RESERVED_WIDTH);
+            const nextColumns = Math.max(1, Math.floor(tracksWidth / CELL_WIDTH));
             setColumnsPerSegment(Math.min(row.alignedQuery.length, nextColumns));
         });
 

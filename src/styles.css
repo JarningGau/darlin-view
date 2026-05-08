@@ -383,7 +383,7 @@ textarea {
 
 .structure-block--cutsite {
     background: var(--region-cutsite);
-    color: #fff8f4;
+    color: #000000;
     box-shadow: inset 0 0 0 2px rgba(132, 18, 22, 0.28);
 }
 
