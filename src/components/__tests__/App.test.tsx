@@ -23,6 +23,8 @@ test('uploads TSV rows and renders structure, cutsite emphasis, and wrapped alig
     expect(await screen.findByText('Alignment Detail')).toBeInTheDocument();
     expect(screen.queryByText('Reference Structure')).not.toBeInTheDocument();
     expect(await screen.findByText(/Deletion columns:\s*1/)).toBeInTheDocument();
+    expect(screen.getByText('Mutation annotation')).toBeInTheDocument();
+    expect(screen.getByText('3_3del')).toBeInTheDocument();
     expect(screen.getByText('Reference overview')).toBeInTheDocument();
     expect(screen.getAllByText(/Cutsite/i).length).toBeGreaterThan(0);
 

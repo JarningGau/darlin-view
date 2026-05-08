@@ -116,6 +116,10 @@ export default function AlignmentDetailView({ row, reference }: AlignmentDetailV
                 <span>Deletion columns: {summary.deletionCount}</span>
                 <span>Edited regions: {summary.editedRegionCount}</span>
             </div>
+            <div className="mutation-annotation">
+                <span>Mutation annotation</span>
+                <code>{summary.mutationAnnotation || 'None'}</code>
+            </div>
             <div ref={containerRef} className="alignment-segments">
                 {alignmentSegments.map((segment, segmentIndex) => (
                     <div

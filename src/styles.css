@@ -303,6 +303,29 @@ textarea {
     margin-bottom: 16px;
 }
 
+.mutation-annotation {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.mutation-annotation span {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.mutation-annotation code {
+    display: block;
+    border: 1px solid rgba(20, 92, 83, 0.16);
+    border-radius: 10px;
+    background: rgba(20, 92, 83, 0.07);
+    color: var(--ink);
+    overflow-x: auto;
+    padding: 8px 10px;
+    white-space: nowrap;
+}
+
 .alignment-segments {
     display: grid;
     gap: 16px;
