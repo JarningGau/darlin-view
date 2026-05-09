@@ -133,4 +133,17 @@ describe('summarizeAlignment', () => {
 
         expect(summary.mutationAnnotation).toBe('10_14delinsCTG');
     });
+
+    test('preserves leading gap-column replacement bases when merging nearby delins events', () => {
+        const alignedQuery =
+            'CGCCGGACTGCACGACAGCCGACGT--------------------GTAGGCATACTATGGAGTCCA-TCGTGTGCGTACAGTCGCGAC-------------------------------------TCCATA--------GCTCGCTC--------------ATAGCGCTCG-CGACTCCATTC-----GTAGCGACTGTA------GTCGACTCCATCGTTATGCGCGAGTGGAGTCGA-------------CTCCATCGCGATGGAGTCGAGTCGAGACGCTGAC-C--ATGGAGTCGATACGTAGCACGCAGAACGATGGGAGCT';
+        const alignedRef =
+            'CGCCGGACTGCACGACAGTCGACG-ATGGAGTCGACACGACTCGC----GCATACGATGGAGTCGAC---------TACAGTCGCTACGACGATGGAGTCGCGAGCGCTATGAGCGACTATGGAGTCGATACGATACGCGCACGCT-ATGGAGTCGAGAGC---GCGCTCGTCGACT------ATGGAGTCGCGACTGTACGCACA------------------CGCGA-TGGAGTCGATAGTATGCGTACA------CGCGATGGAGTCGAGTCGAGACGCTGACG-ATATGGAGTCGATACGTAGCACGCAGA-CGATGGGAGCT';
+
+        const summary = summarizeAlignment(alignedQuery, alignedRef);
+
+        expect(summary.mutationAnnotation).toBe(
+            '19_19delinsC,25_44delinsTGTAG,51_51delinsT,60_62delinsCATCGTGTGCG,72_128delinsGACTCCATAGCT,133_146delinsCATA,154_154del,160_167delinsCCATTCGTA,177_182delinsGTCGACTCCATCGTTATG,187_188insG,197_209delinsCTCCAT,238_240delinsC,265_266insA'
+        );
+    });
 });

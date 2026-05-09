@@ -54,40 +54,23 @@ function formatMutationEvent(event: MutationEvent) {
     return `${event.startPosition}_${event.endPosition}${operation}`;
 }
 
-function querySequenceForReferenceSpan(
+function querySequenceForAlignmentSpan(
     alignedQuery: string,
-    referenceCoordinates: Array<number | null>,
-    startPosition: number,
-    endPosition: number
+    startIndex: number,
+    endIndex: number
 ) {
     let querySequence = '';
-    let previousPosition = 0;
 
-    for (let index = 0; index < alignedQuery.length; index += 1) {
-        const coordinate = referenceCoordinates[index];
-
-        if (coordinate === null) {
-            if (previousPosition >= startPosition && previousPosition <= endPosition) {
-                querySequence += alignedQuery[index];
-            }
-            continue;
-        }
-
-        const position = coordinate + 1;
-        if (position >= startPosition && position <= endPosition && alignedQuery[index] !== '-') {
+    for (let index = startIndex; index < endIndex; index += 1) {
+        if (alignedQuery[index] !== '-') {
             querySequence += alignedQuery[index];
         }
-        previousPosition = position;
     }
 
     return querySequence;
 }
 
-function mergeNearbyMutationEvents(
-    events: MutationEvent[],
-    alignedQuery: string,
-    referenceCoordinates: Array<number | null>
-) {
+function mergeNearbyMutationEvents(events: MutationEvent[], alignedQuery: string) {
     const annotations: string[] = [];
 
     for (let index = 0; index < events.length; index += 1) {
@@ -108,11 +91,10 @@ function mergeNearbyMutationEvents(
 
         const startPosition = group[0].startPosition;
         const endPosition = group[group.length - 1].endPosition;
-        const querySequence = querySequenceForReferenceSpan(
+        const querySequence = querySequenceForAlignmentSpan(
             alignedQuery,
-            referenceCoordinates,
-            startPosition,
-            endPosition
+            group[0].startIndex,
+            group[group.length - 1].endIndex
         );
         const operation = querySequence.length === 0 ? 'del' : `delins${querySequence}`;
         annotations.push(`${startPosition}_${endPosition}${operation}`);
@@ -177,7 +159,7 @@ export function buildMutationAnnotations(
         index -= 1;
     }
 
-    return mergeNearbyMutationEvents(events, alignedQuery, referenceCoordinates);
+    return mergeNearbyMutationEvents(events, alignedQuery);
 }
 
 export function summarizeAlignment(alignedQuery: string, alignedRef: string): AlignmentSummary {
